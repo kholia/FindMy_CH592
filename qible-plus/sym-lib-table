@@ -1,0 +1,10 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "ch591d") (type "KiCad") (uri "${KIPRJMOD}/libs/ch591d.kicad_sym") (options "") (descr ""))
+	(lib (name "testpointside_small") (type "KiCad") (uri "${KIPRJMOD}/libs/testpointside_small.kicad_sym") (options "") (descr ""))
+	(lib (name "testpointside") (type "KiCad") (uri "${KIPRJMOD}/libs/testpointside.kicad_sym") (options "") (descr ""))
+	(lib (name "crystal_gnd24") (type "KiCad") (uri "${KIPRJMOD}/libs/crystal_gnd24.kicad_sym") (options "") (descr ""))
+	(lib (name "usb_c_receptacle_usb2.0") (type "KiCad") (uri "${KIPRJMOD}/libs/usb_c_receptacle_usb2.0.kicad_sym") (options "") (descr ""))
+	(lib (name "easyeda2kicad") (type "KiCad") (uri "${KIPRJMOD}/libs/easyeda2kicad.kicad_sym") (options "") (descr ""))
+	(lib (name "my-2032-16") (type "KiCad") (uri "${KIPRJMOD}/libs/my-2032-16.kicad_sym") (options "") (descr ""))
+)

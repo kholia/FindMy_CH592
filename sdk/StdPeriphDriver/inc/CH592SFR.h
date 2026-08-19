@@ -1,5 +1,5 @@
 /* Define for CH592         */
-/* Website:  http://wch.cn  */
+/* Website:  https://wch.cn  */
 /* Email:    tech@wch.cn    */
 /* Author:   W.ch 2023.02   */
 /* V0.2 SpecialFunctionRegister */
@@ -203,12 +203,12 @@ extern "C" {
 /* ********************************************************************************************************************* */
 
 /* Independent watch-dog register */
-#define R32_IWDG_KR         (*((PUINT32V)0x40001000)) // WO, watch-dog key register
+#define R32_IWDG_KR         (*((PUINT32V)0x40001000)) // WO, watch-dog key register, must enable LSI
 #define R32_IWDG_CFG        (*((PUINT32V)0x40001004)) // RW, watch-dog configuration
 #define  RB_RLR             0x0FFF                    // RW, watch-dog counter reload (write protect)
 #define  RB_PR              0x7000                    // PR, prescale (write protect)
 #define  RB_PVU             0x8000                    // RO, register update flag (write protect)
-#define  RB_COUNT           0xFF0000                  // RO, watch-dog down counter
+#define  RB_COUNT           0xFFF0000                 // RO, watch-dog down counter
 #define  RB_STOP_EN         0x20000000                // RW, watch-dog stop enable (write protect)
 #define  RB_WR_PROTECT      0x40000000                // RO, write protect
 #define  RB_IWDG_EN         0x80000000                // RO, watch-dog enable
@@ -267,6 +267,7 @@ extern "C" {
 #define  RB_CLK_PLL_DIV     0x1F                      // RWA, output clock divider from PLL or CK32M
 #define  RB_CLK_SYS_MOD     0xC0                      // RWA, system clock source mode: 00=divided from 32MHz, 01=divided from PLL-480MHz, 10=directly from 32MHz, 11=directly from 32KHz
 #define  RB_TX_32M_PWR_EN   0x40000                   // RWA, extern 32MHz HSE power contorl
+#define  RB_XT_32M_PWR_EN   0x40000                   // RWA, extern 32MHz HSE power contorl
 #define  RB_XT_FORCE_EN     0x80000                   // RWA, system clock control in Halt mode
 #define  RB_PLL_PWR_EN      0x100000                  // RWA, PLL power control
 
@@ -314,9 +315,8 @@ extern "C" {
 #define  RB_SLP_CLK_RAMX    0x10                      // RWA, close main SRAM clock
 #define  RB_SLP_CLK_RAM2K   0x20                      // RWA, close retention 2KB SRAM clock
 #define  RB_RAM_RET_LV      0x40                      // RWA, SRAM retention voltage selection: 0=normal, 1=low voltage for low power
-#define R32_SLEEP_CTRL2     (*((PUINT32V)0x40001010)) // RWA, touchkey wake up enable
-#define  RB_TKEY0_5_WAKE_EN    0x003F                 // RWA, touchkey wake up enable channel 0-5
-#define  RB_TKEY8_13_WAKE_EN   0x3F00                 // RWA, touchkey wake up enable channel 8-13
+#define R32_SLEEP_CTRL3     (*((PUINT32V)0x40001014)) // RWA, sleep control3
+#define  RB_SLP_GPIO_EDGE_MODE    0x0001                 // RWA, when RB_GPIO_WAKE_MODE=1,GPIO waking edge select:1=all edge,0=pos edge
 
 /* System: I/O pin configuration register */
 #define R32_PIN_CONFIG      (*((PUINT32V)0x40001018)) // RW, I/O pin configuration
@@ -330,9 +330,10 @@ extern "C" {
 #define  RB_PIN_UART2       0x40                      // RW, RXD2/TXD2 alternate pin enable: 0=RXD2/TXD2 on PA[6]/PA[7], 1=RXD2_/TXD2_ on PB[22]/PB[23]
 #define  RB_PIN_UART3       0x80                      // RW, RXD3/TXD3 alternate pin enable: 0=RXD3/TXD3 on PA[4]/PA[5], 1=RXD3_/TXD3_ on PB[20]/PB[21]
 #define  RB_PIN_SPI0        0x100                     // RW, SCS/SCK0/MOSI/MISO alternate pin enable: 0=SCS/SCK0/MOSI/MISO on PA[12]/PA[13]/PA[14]/PA[15], 1=SCS_/SCK0_/MOSI_/MISO_ on PB[12]/PB[13]/PB[14]/PB[15]
-#define  RB_PIN_PWMX        0x400                     // RW, PWM4/PWM5/PWM7/PWM8/PWM9 alternate pin enable: 0=PWM4/5/7/8/9 on PA[12]/PA[13]/PB[4]/PB[6]/PB[7], 1=PWM4/5/7/8/9 on PA[6]/PA[7]/PB[1]/PB[2]/P[3]
+#define  RB_PIN_PWMX        0x400                     // RW, PWM4/PWM5 alternate pin enable: 0=PWM4/5 on PA[12]/PA[13], 1=PWM4/5 on PA[6]/PA[7]
 #define  RB_PIN_I2C         0x800                     // RW, SCL/SDA alternate pin enable: 0=SCL/SDA on PB[13]/PB[12], 1=SCL_/SDA_ on PB[21]/PB[20]
 #define  RB_PIN_MODEM       0x1000                    // RW, DSR/DTR alternate pin enable: 0=DSR/DTR on PB[1]/PB[5], 1=DSR_/DTR_ on PB[14]/PB[15]
+#define  RB_DEBUG_EN        0x2000                    // RW, Debug interface disable control bit: 0=enable debug, 1=disable debug
 #define  RB_RF_ANT_SW_EN    0x8000                    // RW, RF antenna switch control output enable: 0=disable output, 1=output on PB[16]/PB[17]/PB[18]/PB[19]/PB[20]/PB[21]
 #define R16_PIN_ANALOG_IE   (*((PUINT16V)0x4000101A)) // RW, analog pin enable and digital input disable
 #define  RB_PIN_USB_DP_PU   0x40                      // RW, USB UDP internal pullup resistance enable: 0=enable/disable by RB_UC_DEV_PU_EN, 1=enable pullup, replace RB_UC_DEV_PU_EN under sleep mode
@@ -359,13 +360,13 @@ extern "C" {
 #define  RB_PWR_DCDC_EN     0x0200                    // RWA, DC/DC converter enable: 0=DC/DC disable and bypass, 1=DC/DC enable
 #define  RB_PWR_DCDC_PRE    0x0400                    // RWA, DC/DC converter pre-enable
 #define  RB_XT_PRE_CFG      0x1800                    // RWA, extern 32MHz HSE early wake up time configuration
-#define  RB_PWR_MUST_0      0x2000                    // RWA, must write 0
+#define  RB_PWR_MUST_1      0x2000                    // RWA, must write 1
+#define  RB_PWR_MUST_0      0x2000                    // RWA, must write 1 (reserved)
 #define  RB_XT_PRE_EN       0x4000                    // RWA, extern 32MHz HSE early wake up enable, must be used with LSI/LSE
 #define  RB_PWR_PLAN_EN     0x8000                    // RWA/WZ, power plan enable, auto clear after sleep executed
 #define R16_AUX_POWER_ADJ   (*((PUINT16V)0x40001022))  // RWA, aux power adjust control, SAM
 #define  RB_ULPLDO_ADJ      0x0007                    // RWA, Ultra-Low-Power LDO voltage adjust
 #define  RB_DCDC_CHARGE     0x0080                    // RWA, DC/DC aux charge enable
-#define  RB_IPU_TKEY_SEL    0xC000                    // RWA, TouchKey wakeup
 
 /* System: battery detector register */
 #define R32_BATTERY_CTRL    (*((PUINT32V)0x40001024)) // RWA, battery voltage detector, SAM
@@ -471,7 +472,7 @@ extern "C" {
 #define  RB_ADC_DATA        0x0FFF                    // RO, ADC conversion data
 #define R8_ADC_INT_FLAG     (*((PUINT8V)0x4000105E))  // RO, ADC interrupt flag register
 #define  RB_ADC_IF_EOC      0x80                      // RO, ADC conversion interrupt flag: 0=free or converting, 1=end of conversion, interrupt action, auto ADC or write R8_ADC_CONVERT or write R8_TKEY_CONVERT to clear flag
-#define R32_TKEY_CTRL       (*((PUINT8V)0x40001054))  // RW, Touchkey control
+#define R32_TKEY_CTRL       (*((PUINT32V)0x40001054)) // RW, Touchkey control
 #define R8_TKEY_COUNT       (*((PUINT8V)0x40001054))  // RW, Touchkey charge and discharge count
 #define  RB_TKEY_CHARG_CNT  0x1F                      // RW, Touchkey charge count
 #define  RB_TKEY_DISCH_CNT  0xE0                      // RW, Touchkey discharge count
@@ -482,9 +483,9 @@ extern "C" {
 #define  RB_TKEY_CURRENT    0x02                      // RW, Touchkey charge current selection: 0=35uA, 1=70uA
 #define  RB_TKEY_DRV_EN     0x04                      // RW, Touchkey drive shield enable
 #define  RB_TKEY_PGA_ADJ    0x08                      // RW, ADC input PGA speed selection: 0=slow, 1=fast
-#define  RB_TKEY_DMA_EN     0x10                      // RW, Touchkey DMA enable
+#define  RB_TKEY_RAND_EN    0x10                      // RW, Touchkey random trigger enable
 #define  RB_TKEY_AUTO_EN    0x20                      // RW, Touchkey auto-trigger enable
-#define  RB_TKEY_RAND_EN    0x40                      // RW, Touchkey random trigger enable
+#define  RB_TKEY_DMA_EN     0x40                      // RW, Touchkey DMA enable
 #define R32_ADC_DMA_CTRL    (*((PUINT32V)0x40001060)) // RW, ADC DMA control
 #define R8_ADC_CTRL_DMA     (*((PUINT8V)0x40001061))  // RW, ADC DMA control
 #define  RB_ADC_DMA_ENABLE  0x01                      // RW, ADC DMA enable
@@ -503,6 +504,23 @@ extern "C" {
 #define R16_ADC_DMA_BEG     (*((PUINT16V)0x40001068)) // RW, ADC DMA begin address
 #define R32_ADC_DMA_END     (*((PUINT32V)0x4000106C)) // RW, ADC DMA end address
 #define R16_ADC_DMA_END     (*((PUINT16V)0x4000106C)) // RW, ADC DMA end address
+#define R32_ADC_SCAN_CFG1   (*((PUINT32V)0x40001070)) // RW, ADC scan config 1
+#define  RB_ADC_SCAN_CH1    0x0000000F                // RW, ADC Channel 1 analog input channel selection bit
+#define  RB_ADC_SCAN_CH2    0x000000F0                // RW, ADC Channel 2 analog input channel selection bit
+#define  RB_ADC_SCAN_CH3    0x00000F00                // RW, ADC Channel 3 analog input channel selection bit
+#define  RB_ADC_SCAN_CH4    0x0000F000                // RW, ADC Channel 4 analog input channel selection bit
+#define  RB_ADC_SCAN_CH5    0x000F0000                // RW, ADC Channel 5 analog input channel selection bit
+#define  RB_ADC_SCAN_CH6    0x00F00000                // RW, ADC Channel 6 analog input channel selection bit
+#define  RB_ADC_SCAN_CH7    0x0F000000                // RW, ADC Channel 7 analog input channel selection bit
+#define  RB_ADC_SCAN_CH8    0xF0000000                // RW, ADC Channel 8 analog input channel selection bit
+#define R32_ADC_SCAN_CFG2   (*((PUINT32V)0x40001074)) // RW, ADC scan config 2
+#define  RB_ADC_SCAN_CH9    0x0000000F                // RW, ADC Channel 9 analog input channel selection bit
+#define  RB_ADC_SCAN_CH10   0x000000F0                // RW, ADC Channel 10 analog input channel selection bit
+#define  RB_ADC_SCAN_CH11   0x00000F00                // RW, ADC Channel 11 analog input channel selection bit
+#define  RB_ADC_SCAN_QUAN   0x000F0000                // RW, Number of ADC scanning channels
+#define  RB_ADC_SCAN_SEL    0x00100000                // RW, ADC scan function selection: 0=TKEY, 1=ADC
+#define  RB_ADC_IE_SCAN_END 0x00200000                // RW, ADC scan end interrupt enable: 0=disable, 1=enable
+#define  RB_ADC_IF_SCAN_END 0x01000000                // RW, ADC scan end flag, write 1 to clear
 
 /* System: Flash ROM control register */
 #define R32_FLASH_DATA      (*((PUINT32V)0x40001800)) // RO/WO, flash ROM data
@@ -518,6 +536,9 @@ extern "C" {
 #define R32_GPIO_INT_MODE   (*((PUINT32V)0x40001094)) // RW, GPIO interrupt mode: 0=level action, 1=edge action
 #define R16_PA_INT_MODE     (*((PUINT16V)0x40001094)) // RW, GPIO PA interrupt mode: 0=level action, 1=edge action
 #define R16_PB_INT_MODE     (*((PUINT16V)0x40001096)) // RW, GPIO PB interrupt mode: 0=level action, 1=edge action
+#define R32_GPIO_INT_EDGE_TYPE (*((PUINT32V)0x40001098)) // RW, GPIO interrupt edge selection
+#define R16_PA_INT_EDGE_TYPE (*((PUINT16V)0x40001098)) // RW, GPIO PA interrupt edge selection
+#define R16_PB_INT_EDGE_TYPE (*((PUINT16V)0x4000109A)) // RW, GPIO PB interrupt edge selection
 #define R32_GPIO_INT_IF     (*((PUINT32V)0x4000109C)) // RW1, GPIO interrupt flag
 #define R16_PA_INT_IF       (*((PUINT16V)0x4000109C)) // RW1, GPIO PA interrupt flag
 #define R16_PB_INT_IF       (*((PUINT16V)0x4000109E)) // RW1, GPIO PB interrupt flag
@@ -702,6 +723,7 @@ extern "C" {
 #define R8_TMR0_CTRL_MOD    (*((PUINT8V)0x40002000))  // RW, TMR0 mode control
 #define R8_TMR0_INTER_EN    (*((PUINT8V)0x40002002))  // RW, TMR0 interrupt enable
 // #define R32_TMR0_STATUS     (*((PUINT32V)0x40002004)) // RW, TMR0 status
+#define R8_TMR0_PWM_MOD     (*((PUINT8V)0x40002004))  // RW, TMR0 PWM repeat mode
 #define R8_TMR0_INT_FLAG    (*((PUINT8V)0x40002006))  // RW1, TMR0 interrupt flag
 #define R8_TMR0_FIFO_COUNT  (*((PUINT8V)0x40002007))  // RO, TMR0 FIFO count status
 #define R32_TMR0_COUNT      (*((PUINT32V)0x40002008)) // RO, TMR0 current count
@@ -718,6 +740,7 @@ extern "C" {
 #define R8_TMR1_CTRL_DMA    (*((PUINT8V)0x40002401))  // RW, TMR1 DMA control
 #define R8_TMR1_INTER_EN    (*((PUINT8V)0x40002402))  // RW, TMR1 interrupt enable
 // #define R32_TMR1_STATUS     (*((PUINT32V)0x40002404)) // RW, TMR1 status
+#define R8_TMR1_PWM_MOD     (*((PUINT8V)0x40002404))  // RW, TMR1 PWM repeat mode
 #define R8_TMR1_INT_FLAG    (*((PUINT8V)0x40002406))  // RW1, TMR1 interrupt flag
 #define R8_TMR1_FIFO_COUNT  (*((PUINT8V)0x40002407))  // RO, TMR1 FIFO count status
 #define R32_TMR1_COUNT      (*((PUINT32V)0x40002408)) // RO, TMR1 current count
@@ -740,6 +763,7 @@ extern "C" {
 #define R8_TMR2_CTRL_DMA    (*((PUINT8V)0x40002801))  // RW, TMR2 DMA control
 #define R8_TMR2_INTER_EN    (*((PUINT8V)0x40002802))  // RW, TMR2 interrupt enable
 // #define R32_TMR2_STATUS     (*((PUINT32V)0x40002804)) // RW, TMR2 status
+#define R8_TMR2_PWM_MOD     (*((PUINT8V)0x40002804))  // RW, TMR2 PWM repeat mode
 #define R8_TMR2_INT_FLAG    (*((PUINT8V)0x40002806))  // RW1, TMR2 interrupt flag
 #define R8_TMR2_FIFO_COUNT  (*((PUINT8V)0x40002807))  // RO, TMR2 FIFO count status
 #define R32_TMR2_COUNT      (*((PUINT32V)0x40002808)) // RO, TMR2 current count
@@ -761,6 +785,7 @@ extern "C" {
 #define R8_TMR3_CTRL_MOD    (*((PUINT8V)0x40002C00))  // RW, TMR3 mode control
 #define R8_TMR3_INTER_EN    (*((PUINT8V)0x40002C02))  // RW, TMR3 interrupt enable
 // #define R32_TMR3_STATUS     (*((PUINT32V)0x40002C04)) // RW, TMR3 status
+#define R8_TMR3_PWM_MOD     (*((PUINT8V)0x40002C04))  // RW, TMR3 PWM repeat mode
 #define R8_TMR3_INT_FLAG    (*((PUINT8V)0x40002C06))  // RW1, TMR3 interrupt flag
 #define R8_TMR3_FIFO_COUNT  (*((PUINT8V)0x40002C07))  // RO, TMR3 FIFO count status
 #define R32_TMR3_COUNT      (*((PUINT32V)0x40002C08)) // RO, TMR3 current count
@@ -795,6 +820,8 @@ extern "C" {
 #define  RB_TMR_IE_FIFO_HF  0x04                      // RW, enable interrupt for timer FIFO half (capture fifo >=4 or PWM fifo <=3)
 #define  RB_TMR_IE_DMA_END  0x08                      // RW, enable interrupt for timer1/2 DMA completion
 #define  RB_TMR_IE_FIFO_OV  0x10                      // RW, enable interrupt for timer FIFO overflow
+#define TMR_PWM_MOD         4
+#define RB_TMR_PWM_MOD      0x01	                  // RW, timer PWM mode, the first data repetition is controlled by RB_TMR_PWM_REPEAT bit 
 #define TMR_INT_FLAG        6
 #define  RB_TMR_IF_CYC_END  0x01                      // RW1, interrupt flag for timer capture count timeout or PWM cycle end
 #define  RB_TMR_IF_DATA_ACT 0x02                      // RW1, interrupt flag for timer capture input action or PWM trigger
@@ -982,6 +1009,8 @@ extern "C" {
 #define R8_SPI0_RUN_FLAG    (*((PUINT8V)0x40004005))  // RO, SPI0 work flag
 #define R8_SPI0_INT_FLAG    (*((PUINT8V)0x40004006))  // RW1, SPI0 interrupt flag
 #define R8_SPI0_FIFO_COUNT  (*((PUINT8V)0x40004007))  // RO, SPI0 FIFO count status
+#define R8_SPI0_CTRL_MOD1   (*((PUINT8V)0x40004008))  // RW, SPI0 mode control1
+#define R8_SPI0_CTRL_MOD2   (*((PUINT8V)0x40004009))  // RW, SPI0 mode control2
 #define R32_SPI0_TOTAL_CNT  (*((PUINT32V)0x4000400C)) // RW, SPI0 total byte count, only low 12 bit
 #define R16_SPI0_TOTAL_CNT  (*((PUINT16V)0x4000400C)) // RW, SPI0 total byte count, only low 12 bit
 #define R32_SPI0_FIFO       (*((PUINT32V)0x40004010)) // RW, SPI0 FIFO register
@@ -1038,6 +1067,10 @@ extern "C" {
 #define  RB_SPI_IF_FST_BYTE 0x80                      // RW1, interrupt flag for SPI0 slave mode first byte received
 #define SPI_FIFO_COUNT      7
 #define SPI_TOTAL_CNT       0x0C
+#define SPI_CTRL_MOD1	8
+#define  RB_MST_CLK_SEL  0x01
+#define SPI_CTRL_MOD2	9
+#define  RB_SLV_FAST_MOD  0x01
 #define SPI_FIFO            0x10
 #define SPI_DMA_NOW         0x14
 #define SPI_DMA_BEG         0x18
@@ -1124,11 +1157,15 @@ extern "C" {
 #define R8_PWM_CONFIG       (*((PUINT8V)0x40005002))  // RW, PWM configuration
 #define R8_PWM_CLOCK_DIV    (*((PUINT8V)0x40005003))  // RW, PWM clock divisor
 #define R32_PWM4_7_DATA     (*((PUINT32V)0x40005004)) // RW, PWM4-7 data holding
+#define R16_PWM4_DATA       (*((PUINT16V)0x40005004)) // RW, PWM4 16bit data holding
+#define R16_PWM5_DATA       (*((PUINT16V)0x40005006)) // RW, PWM5 16bit data holding
 #define R8_PWM4_DATA        (*((PUINT8V)0x40005004))  // RW, PWM4 data holding
 #define R8_PWM5_DATA        (*((PUINT8V)0x40005005))  // RW, PWM5 data holding
 #define R8_PWM6_DATA        (*((PUINT8V)0x40005006))  // RW, PWM6 data holding
 #define R8_PWM7_DATA        (*((PUINT8V)0x40005007))  // RW, PWM7 data holding
 #define R32_PWM8_11_DATA    (*((PUINT32V)0x40005008)) // RW, PWM8-11 data holding
+#define R16_PWM6_DATA       (*((PUINT16V)0x40005008)) // RW, PWM6 16bit data holding
+#define R16_PWM7_DATA       (*((PUINT16V)0x4000500A)) // RW, PWM7 16bit data holding
 #define R8_PWM8_DATA        (*((PUINT8V)0x40005008))  // RW, PWM8 data holding
 #define R8_PWM9_DATA        (*((PUINT8V)0x40005009))  // RW, PWM9 data holding
 #define R8_PWM10_DATA       (*((PUINT8V)0x4000500A))  // RW, PWM10 data holding
@@ -1138,6 +1175,8 @@ extern "C" {
 #define  RB_PWM_CYC_PRE     0x02                      // RW, select PWM cycle interrupt point: 0=after count 0xFE (0x7E for 7 bits mode...), 1=after count 0xF0 (0x70 for 7 bits mode...)
 #define  RB_PWM_IF_CYC      0x80                      // RW1, interrupt flag for PWM cycle end
 #define R32_PWM_REG_DATA8   (*((PUINT32V)0x40005010)) // RW, PWM8-9 data register
+#define R16_PWM8_DATA       (*((PUINT16V)0x40005010)) // RW, PWM8 16bit data holding
+#define R16_PWM9_DATA       (*((PUINT16V)0x40005012)) // RW, PWM9 16bit data holding
 #define R32_PWM_REG_CYCLE   (*((PUINT32V)0x40005014)) // RW, PWM cycle value
 
 /* PWM4/5/6/7/8/9/10/11 register address offset and bit define */
@@ -1349,7 +1388,6 @@ extern "C" {
 #define  RB_UH_PORT_EN      0x01      // enable USB port: 0=disable, 1=enable port, automatic disabled if USB device detached
 
 #define R8_USB_INT_EN       (*((PUINT8V)0x40008002))  // USB interrupt enable
-#define  RB_UIE_DEV_SOF     0x80      // enable interrupt for SOF received for USB device mode
 #define  RB_UIE_DEV_NAK     0x40      // enable interrupt for NAK responded for USB device mode
 #define  RB_MOD_1_WIRE      0x20      // enable single wire mode
 #define  RB_UIE_FIFO_OV     0x10      // enable interrupt for FIFO overflow
@@ -1392,12 +1430,10 @@ extern "C" {
 #define  RB_UIS_TOKEN0      0x10      // RO, current token PID code bit 0 received for USB device mode
 #define  MASK_UIS_TOKEN     0x30      // RO, bit mask of current token PID code received for USB device mode
 #define  UIS_TOKEN_OUT      0x00
-#define  UIS_TOKEN_SOF      0x10
 #define  UIS_TOKEN_IN       0x20
 #define  UIS_TOKEN_SETUP    0x30
 // bUIS_TOKEN1 & bUIS_TOKEN0: current token PID code received for USB device mode, keep last status during SETUP token, clear RB_UIF_TRANSFER ( RB_UIF_TRANSFER from 1 to 0 ) to set free
 //   00: OUT token PID received
-//   01: SOF token PID received
 //   10: IN token PID received
 //   11: free
 #define  MASK_UIS_ENDP      0x0F      // RO, bit mask of current transfer endpoint number for USB device mode

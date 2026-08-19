@@ -1,0 +1,6 @@
+*.json
+*keyfile*
+*keys*
+venv
+__pycache__
+*DS_St*

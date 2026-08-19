@@ -1,0 +1,7 @@
+(version 1)
+
+# The PCB antenna is intentionally placed close to the routed board edge.
+# Keep the general 0.5 mm edge clearance everywhere else.
+(rule "PCB antenna to board edge"
+	(condition "A.memberOfFootprint('AE1')")
+	(constraint edge_clearance (min 0.15mm)))

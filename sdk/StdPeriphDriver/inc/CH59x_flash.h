@@ -26,15 +26,16 @@ extern "C" {
  */
 void FLASH_ROM_READ(uint32_t StartAddr, void *Buffer, uint32_t len);
 
-void FLASH_ROM_READ(UINT32 StartAddr, PVOID Buffer, UINT32 len); /* 读取Flash-ROM */
-
 UINT8 UserOptionByteConfig(FunctionalState RESET_EN, FunctionalState BOOT_PIN, FunctionalState UART_NO_KEY_EN,
-                           UINT32 FLASHProt_Size);
+        uint32_t FLASHProt_Size);
 
 UINT8 UserOptionByteClose_SWD(void);
 
 void UserOptionByte_Active(void);
 
+void GET_UNIQUE_ID(uint8_t *Buffer);
+
+uint8_t GET_CHIP_VERSION(void);
 #ifdef __cplusplus
 }
 #endif

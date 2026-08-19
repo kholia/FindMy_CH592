@@ -219,7 +219,7 @@ int adc_to_temperature_celsius(uint16_t adc_val);
 /**
  * @brief   ADC执行单次转换
  */
-#define ADC_StartUp()             (R8_ADC_CONVERT = RB_ADC_START)
+#define ADC_StartUp()             (R8_ADC_CONVERT |= RB_ADC_START)
 
 /**
  * @brief   获取ADC中断状态
@@ -229,7 +229,7 @@ int adc_to_temperature_celsius(uint16_t adc_val);
 /**
  * @brief   清除ADC中断标志
  */
-#define ADC_ClearITFlag()         (R8_ADC_CONVERT = 0)
+#define ADC_ClearITFlag()         (R8_ADC_CONVERT = R8_ADC_CONVERT)
 
 /**
  * @brief   获取ADC DMA完成状态
@@ -240,6 +240,16 @@ int adc_to_temperature_celsius(uint16_t adc_val);
  * @brief   清除ADC DMA完成标志
  */
 #define ADC_ClearDMAFlag()        (R8_ADC_DMA_IF |= RB_ADC_IF_DMA_END)
+
+/**
+ * @brief   获取ADC DMA ADC转换完成完成状态
+ */
+#define ADC_GetDMA_EOCStatus()    (R8_ADC_DMA_IF & RB_ADC_IF_END_ADC)
+
+/**
+ * @brief   清除ADC DMA ADC转换完成完成标志
+ */
+#define ADC_ClearDMA_EOCFlag()    (R8_ADC_DMA_IF |= RB_ADC_IF_END_ADC)
 
 /**
  * @brief   开启定时间隔自动连续 ADC
@@ -260,16 +270,6 @@ int adc_to_temperature_celsius(uint16_t adc_val);
  * @brief   停止连续转换 ADC
  */
 #define ADC_StopContDMA()         (R8_ADC_CTRL_DMA &= ~RB_ADC_CONT_EN)
-
-/**
- * @brief   获取TouchKey中断状态
- */
-#define TouchKey_GetITStatus()    (R8_ADC_INT_FLAG & RB_ADC_IF_EOC)
-
-/**
- * @brief   清除TouchKey中断标志
- */
-#define TouchKey_ClearITFlag()    (R8_TKEY_CTRL |= RB_TKEY_PWR_ON)
 
 /**
  * @brief   关闭ADC电源

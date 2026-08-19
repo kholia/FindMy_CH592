@@ -1,0 +1,6 @@
+pysrp
+pyusb
+chprog
+pbkdf2
+# qrencode
+cryptography

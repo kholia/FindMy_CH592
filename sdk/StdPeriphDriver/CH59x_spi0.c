@@ -113,7 +113,7 @@ void SPI0_MasterSendByte(uint8_t d)
  */
 uint8_t SPI0_MasterRecvByte(void)
 {
-    R8_SPI0_CTRL_MOD &= ~RB_SPI_FIFO_DIR;
+    R8_SPI0_CTRL_MOD |= RB_SPI_FIFO_DIR; // 设置数据方向为输入
     R8_SPI0_BUFFER = 0xFF; // 启动传输
     while(!(R8_SPI0_INT_FLAG & RB_SPI_FREE));
     return (R8_SPI0_BUFFER);
@@ -311,6 +311,7 @@ void SPI0_SlaveTrans(uint8_t *pbuf, uint16_t len)
     uint16_t sendlen;
 
     sendlen = len;
+    R8_SPI0_CTRL_MOD2 |= RB_SLV_FAST_MOD; // 开启快速模式
     R8_SPI0_CTRL_MOD &= ~RB_SPI_FIFO_DIR; // 设置数据方向为输出
     R8_SPI0_INT_FLAG = RB_SPI_IF_CNT_END;
     while(sendlen)
@@ -360,6 +361,7 @@ void SPI0_SlaveDMARecv(uint8_t *pbuf, uint16_t len)
 void SPI0_SlaveDMATrans(uint8_t *pbuf, uint16_t len)
 {
     R8_SPI0_CTRL_MOD &= ~RB_SPI_FIFO_DIR;
+    R8_SPI0_CTRL_MOD2 |= RB_SLV_FAST_MOD; // 开启快速模式
     R16_SPI0_DMA_BEG = (uint32_t)pbuf;
     R16_SPI0_DMA_END = (uint32_t)(pbuf + len);
     R16_SPI0_TOTAL_CNT = len;
@@ -368,3 +370,74 @@ void SPI0_SlaveDMATrans(uint8_t *pbuf, uint16_t len)
     while(!(R8_SPI0_INT_FLAG & RB_SPI_IF_CNT_END));
     R8_SPI0_CTRL_CFG &= ~RB_SPI_DMA_ENABLE;
 }
+/*********************************************************************
+ * @fn      SPI_2WIRE_MasterOutputInit
+ *
+ * @brief   主机2线发送模式初始化：模式1+2线半双工+8MHz
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+void SPI_2WIRE_MasterOutputInit(void)
+{
+    R8_SPI0_CLOCK_DIV = 4; // 主频时钟4分频
+    R8_SPI0_CTRL_MOD = RB_SPI_ALL_CLEAR;
+    R8_SPI0_CTRL_MOD = RB_SPI_MISO_OE | RB_SPI_SCK_OE;
+    R8_SPI0_CTRL_CFG |= RB_SPI_AUTO_IF;     // 访问BUFFER/FIFO自动清除IF_BYTE_END标志
+    R8_SPI0_CTRL_CFG &= ~RB_SPI_DMA_ENABLE; // 不启动DMA方式
+}
+
+/*********************************************************************
+ * @fn      SPI_2WIRE_MasterInputInit
+ *
+ * @brief   主机2线接收模式初始化：模式1+2线半双工+8MHz
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+void SPI_2WIRE_MasterInputInit(void)
+{
+    R8_SPI0_CLOCK_DIV = 4; // 主频时钟4分频
+    R8_SPI0_CTRL_MOD = RB_SPI_ALL_CLEAR;
+    R8_SPI0_CTRL_MOD = RB_SPI_SCK_OE;
+    R8_SPI0_CTRL_CFG |= RB_SPI_AUTO_IF;     // 访问BUFFER/FIFO自动清除IF_BYTE_END标志
+    R8_SPI0_CTRL_CFG &= ~RB_SPI_DMA_ENABLE; // 不启动DMA方式
+}
+
+/*********************************************************************
+ * @fn      SPI_2WIRE_SlaveOutputInit
+ *
+ * @brief   从机2线发送模式初始化：模式1+2线半双工+8MHz
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+void SPI_2WIRE_SlaveOutputInit(void)
+{
+    R8_SPI0_CTRL_MOD =  RB_SPI_ALL_CLEAR;
+    R8_SPI0_CTRL_MOD2 |= RB_SLV_FAST_MOD; // 开启快速模式
+    R8_SPI0_CTRL_MOD =  RB_SPI_MISO_OE | RB_SPI_2WIRE_MOD | RB_SPI_MODE_SLAVE; // 从机两线使能
+    R8_SPI0_CTRL_CFG |= RB_SPI_AUTO_IF;
+}
+
+
+/*********************************************************************
+ * @fn      SPI_2WIRE_SlaveInputInit
+ *
+ * @brief   从机2线接收模式初始化：模式1+2线半双工+8MHz
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+void SPI_2WIRE_SlaveInputInit(void)
+{
+    R8_SPI0_CTRL_MOD =  RB_SPI_ALL_CLEAR;
+    R8_SPI0_CTRL_MOD =  RB_SPI_2WIRE_MOD | RB_SPI_MODE_SLAVE;  // 从机两线使能
+    R8_SPI0_CTRL_CFG |= RB_SPI_AUTO_IF;
+    R8_SPI0_CTRL_MOD1 |= RB_MST_CLK_SEL;  // 从机输入
+}
+

@@ -53,7 +53,7 @@
 #endif
 
 #ifndef  SAFEOPERATE
-#define  SAFEOPERATE   __nop();__nop()
+#define  SAFEOPERATE    asm volatile("fence.i")
 #endif
 
 /**
@@ -92,6 +92,7 @@
 #define DelayMs(x)      mDelaymS(x)
 #define DelayUs(x)      mDelayuS(x)
 
+#define ROM_CFG_VERISON    0x7F010
 
 #ifdef __cplusplus
 }

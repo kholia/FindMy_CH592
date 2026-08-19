@@ -1,5 +1,9 @@
 ENTRY( _start )
 
+__stack_size = 512;
+
+PROVIDE( _stack_size = __stack_size );
+
 MEMORY
 {
 	FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 448K
@@ -120,7 +124,7 @@ SECTIONS
 
 	.dalign    : 
 	{
-		. = ORIGIN(RAM) + MAX(0x800 , SIZEOF(.highcode));
+		. = ORIGIN(RAM) + SIZEOF(.highcode);
 	} >RAM AT>FLASH	
 
 	.dlalign :
@@ -165,13 +169,14 @@ SECTIONS
 
 	PROVIDE( _end = _ebss);
 	PROVIDE( end = . );
-	
-	.stack ORIGIN(RAM)+LENGTH(RAM) :
-	{
-		. = ALIGN(4);
-		PROVIDE(_eusrstack = . );
-	} >RAM  
-}
 
+	/* The stack grows down from the top of RAM. Keep it as symbols rather
+	 * than a sparse output section so modern ld does not report the unused
+	 * gap between .bss and the stack as allocated RAM. */
+	PROVIDE( _heap_end = ORIGIN(RAM) + LENGTH(RAM) - __stack_size );
+	PROVIDE( _susrstack = _heap_end );
+	PROVIDE( _eusrstack = ORIGIN(RAM) + LENGTH(RAM) );
+	ASSERT( _end <= _susrstack, "RAM overflow: data collides with stack" )
+}
 
 

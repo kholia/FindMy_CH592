@@ -181,6 +181,26 @@ void SPI0_SlaveDMATrans(uint8_t *pbuf, uint16_t len);
 void SPI0_SlaveDMARecv(uint8_t *pbuf, uint16_t len);
 
 /**
+ * @brief   2线模式主机输出使能
+ */
+void SPI_2WIRE_MasterOutputInit(void);
+
+/**
+ * @brief   2线模式主机输入使能
+ */
+void SPI_2WIRE_MasterInputInit(void);
+
+/**
+ * @brief   2线模式从机输出使能
+ */
+void SPI_2WIRE_SlaveOutputInit(void);
+
+/**
+ * @brief   2线模式从机输入使能
+ */
+void SPI_2WIRE_SlaveInputInit(void);
+
+/**
  * @brief   配置SPI0中断
  *
  * @param   s       - 使能/关闭

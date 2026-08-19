@@ -1,9 +1,9 @@
 ## Makefile
 
-# Prefix for older riscv gcc is  risv-none-embed
-# Prefix for newer riscv gcc is  risv-none-elf
-# TOOLCHAIN_PREFIX := riscv-none-embed
-TOOLCHAIN_PREFIX := ../MRS_Toolchain_Linux_x64_V1.92/RISC-V_Embedded_GCC12/bin/riscv-none-elf
+# xPack GNU RISC-V Embedded GCC uses the riscv-none-elf prefix.
+# TOOLCHAIN_PREFIX remains overridable for other compatible toolchains.
+TOOLCHAIN_PREFIX ?= riscv-none-elf
+DOCKER_IMAGE ?= ch592-findmy-builder
 
 
 APP_C_SRCS += \
@@ -69,23 +69,35 @@ MAKEFILE_DEPS := \
 STDPERIPHDRIVER_LIBS := -L"./sdk/StdPeriphDriver" -lISP592
 BLE_LIB_LIBS := -L"./sdk/BLE/LIB" -lCH59xBLE
 LIBS := $(STDPERIPHDRIVER_LIBS) $(BLE_LIB_LIBS)
+SPECS ?= --specs=nano.specs --specs=nosys.specs
 
 SECONDARY_FLASH := main.hex
 SECONDARY_LIST := main.lst
 SECONDARY_SIZE := main.siz
 SECONDARY_BIN := main.bin
 
-# ARCH is rv32imac on older gcc, rv32imac_zicsr on newer gcc
-# ARCH := rv32imac
-ARCH := rv32imac_zicsr
+# Older riscv-none-embed toolchains do not understand the split-out zicsr and
+# zifencei extensions. ARCH can still be overridden explicitly.
+ifneq ($(findstring none-embed,$(notdir $(TOOLCHAIN_PREFIX))),)
+ARCH ?= rv32imac
+else
+ARCH ?= rv32imac_zicsr_zifencei
+endif
 
 CFLAGS_COMMON := \
+  $(SPECS) \
+  -DBLE_MAC=TRUE \
+  -DDCDC_ENABLE=TRUE \
+  -DHAL_SLEEP=TRUE \
+  -DBLE_TX_POWER=LL_TX_PWR_4_DBM \
+  -DINT_SOFT \
   -march=$(ARCH) \
   -mabi=ilp32 \
   -mcmodel=medany \
   -msmall-data-limit=8 \
   -mno-save-restore \
   -Os \
+  -Werror=attributes \
   -fmessage-length=0 \
   -fsigned-char \
   -ffunction-sections \
@@ -97,14 +109,9 @@ all: main.elf secondary-outputs
 
 .PHONY: clean
 clean:
-	-rm $(OBJS)
-	-rm $(MAKEFILE_DEPS)
-	-rm $(SECONDARY_FLASH)
-	-rm $(SECONDARY_LIST)
-	-rm $(SECONDARY_BIN)
-	-rm main.elf
-	-rm main.map
-	-rm -r ./obj
+	$(RM) -r obj
+	$(RM) main.elf main.map \
+	    $(SECONDARY_FLASH) $(SECONDARY_LIST) $(SECONDARY_SIZE) $(SECONDARY_BIN)
 
 .PHONY: secondary-outputs
 secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_LIST) $(SECONDARY_SIZE) $(SECONDARY_BIN)
@@ -120,8 +127,6 @@ main.elf: $(OBJS)
 	    --print-memory-usage \
 	    -Wl,-Map,"main.map" \
 	    -Lobj \
-	    --specs=nano.specs \
-	    --specs=nosys.specs \
 	    -o "main.elf" \
 	    $(OBJS) \
 	    $(LIBS)
@@ -141,10 +146,10 @@ main.elf: $(OBJS)
 	    --wide "$<" > "$@"
 
 %.siz: %.elf
-	@ ${TOOLCHAIN_PREFIX}-size --format=berkeley "$<"
+	@ ${TOOLCHAIN_PREFIX}-size --format=berkeley "$<" > "$@"
 
 obj/%.o: ./%.c
-	@ mkdir --parents $(dir $@)
+	@ mkdir -p $(dir $@)
 	@ ${TOOLCHAIN_PREFIX}-gcc \
 	    $(CFLAGS_COMMON) \
 	    -I"src/include" \
@@ -161,7 +166,7 @@ obj/%.o: ./%.c
 	    -o "$@" "$<"
 
 obj/%.o: ./%.S
-	@ mkdir --parents $(dir $@)
+	@ mkdir -p $(dir $@)
 	@ ${TOOLCHAIN_PREFIX}-gcc \
 	    $(CFLAGS_COMMON) \
 	    -x assembler \
@@ -172,8 +177,28 @@ obj/%.o: ./%.S
 	    -c \
 	    -o "$@" "$<"
 
-f: clean all
+.PHONY: f
+f: clean
+	$(MAKE) all
 	chprog main.bin
 
-flash: 
+.PHONY: flash
+flash: all
 	chprog main.bin
+
+.PHONY: docker-image
+docker-image:
+	docker build --tag $(DOCKER_IMAGE) .
+
+.PHONY: docker-build
+docker-build: docker-image
+	docker run --rm \
+	    --user "$$(id -u):$$(id -g)" \
+	    --volume "$(CURDIR):/work" \
+	    $(DOCKER_IMAGE) \
+	    TOOLCHAIN_PREFIX=riscv-none-elf \
+	    all
+
+ifeq ($(filter clean,$(MAKECMDGOALS)),)
+-include $(MAKEFILE_DEPS)
+endif

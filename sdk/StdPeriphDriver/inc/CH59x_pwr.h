@@ -19,6 +19,7 @@ extern "C" {
 
 #define ROM_CFG_ADR_HW       0x7F00C            // config address for hardware config for LDO&OSC and etc
 
+#define RB_SLP_EDGE_WAKE     0x02
 /**
  * @brief	Peripher CLK control bit define
  */

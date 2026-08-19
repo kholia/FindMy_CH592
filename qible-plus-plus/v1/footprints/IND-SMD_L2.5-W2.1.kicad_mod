@@ -1,0 +1,201 @@
+(footprint "IND-SMD_L2.5-W2.1"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(property "Reference" "L1"
+		(at -1.461 -0.8635 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "b1c08317-5e05-4bc2-bd17-3de71338bce4")
+		(effects
+			(font
+				(size 0.686 0.6285)
+				(thickness 0.1525)
+			)
+			(justify left bottom)
+		)
+	)
+	(property "Value" "10uH"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "ba132d72-0d4f-43f5-a319-ea1fbe9e3873")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "22e963e5-c394-41ac-9671-3351b65a3071")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Inductor"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "01ed13f4-5e72-4838-bb1e-fada20720f01")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property ki_fp_filters "Choke_* *Coil* Inductor_* L_*")
+	(sheetname "/")
+	(sheetfile "qpp.kicad_sch")
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -1.25 -1.3)
+		(end 1.25 -1.3)
+		(stroke
+			(width 0.254)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "bc435c18-68ca-48af-9463-782f20a747d8")
+	)
+	(fp_line
+		(start -1.25 1.3)
+		(end 1.25 1.3)
+		(stroke
+			(width 0.254)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "cf7615c1-dff3-4d2a-a24e-81c732c75061")
+	)
+	(fp_rect
+		(start -1.555433 -1.3255)
+		(end 1.5255 1.355433)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "b39e1212-c3af-44fc-b857-64fde1b4860c")
+	)
+	(fp_line
+		(start -1.25 -1.05)
+		(end 1.25 -1.05)
+		(stroke
+			(width 0.051)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "d4341e99-6174-48e0-a0b8-23244ba2c8d7")
+	)
+	(fp_line
+		(start -1.25 1.05)
+		(end -1.25 -1.05)
+		(stroke
+			(width 0.051)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "e68f1d5c-0245-4561-9179-f438efee5648")
+	)
+	(fp_line
+		(start 1.25 -1.05)
+		(end 1.25 1.05)
+		(stroke
+			(width 0.051)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "d5d077b2-e550-4515-9158-ce5f251654b0")
+	)
+	(fp_line
+		(start 1.25 1.05)
+		(end -1.25 1.05)
+		(stroke
+			(width 0.051)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "76a2455e-6e50-4684-bc14-dd4e2a6c5966")
+	)
+	(fp_poly
+		(pts
+			(xy -1.194567 1.027039) (xy -1.227039 0.994567) (xy -1.272961 0.994567) (xy -1.305433 1.027039) (xy -1.305433 1.072961)
+			(xy -1.272961 1.105433) (xy -1.227039 1.105433) (xy -1.194567 1.072961)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "F.Fab")
+		(uuid "78f7de71-98da-4d1c-845b-8a0db444188d")
+	)
+	(fp_poly
+		(pts
+			(xy -0.4 -0.925) (xy -0.4 0.925) (xy -1.25 0.925) (xy -1.25 -0.925)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "User.1")
+		(uuid "b65bd6c6-af70-46c6-aab5-5096958494de")
+	)
+	(fp_poly
+		(pts
+			(xy 1.25 -0.925) (xy 1.25 0.925) (xy 0.4 0.925) (xy 0.4 -0.925)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "User.1")
+		(uuid "e5ec4bd6-c6f6-4769-a549-8d74a33f4f4a")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "ba75625b-787a-4fc9-b739-5d73f3a20cfd")
+		(effects
+			(font
+				(size 0.5 0.5)
+				(thickness 0.1)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at -0.825 0 90)
+		(size 2.1 0.85)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "a4127512-8007-42ff-ac70-0a1cbc449b7c")
+	)
+	(pad "2" smd rect
+		(at 0.825 0 90)
+		(size 2.1 0.85)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "d74bc752-22bf-434d-8a9a-65eac287ef1e")
+	)
+	(embedded_fonts no)
+	(model "${KIPRJMOD}/EASYEDA_MODELS/IND-SMD_L2.5-W2.1-H1.3.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -90)
+		)
+	)
+)

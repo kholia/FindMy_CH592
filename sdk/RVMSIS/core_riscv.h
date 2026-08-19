@@ -96,9 +96,41 @@ typedef struct
     else                                                            \
       __asm__ volatile ("csrw  " #reg ", %0" :: "r"(val)); })
 
-#define PFIC_EnableAllIRQ()     {write_csr(0x800, 0x88);__nop();__nop();}
-#define PFIC_DisableAllIRQ()    {write_csr(0x800, 0x80);__nop();__nop();}
+#define PFIC_EnableAllIRQ()     {write_csr(0x800, 0x88);}
+#define PFIC_DisableAllIRQ()    {write_csr(0x800, 0x80);asm volatile("fence.i");}
 /* ##########################   PFIC functions  #################################### */
+
+/*********************************************************************
+ * @fn      __risc_v_enable_irq
+ *
+ * @brief   recover Global Interrupt
+ *
+ * @return  mpie and mie bit in mstatus.
+ */
+__attribute__((always_inline)) RV_STATIC_INLINE uint32_t __risc_v_enable_irq(uint32_t mpie_mie)
+{
+  uint32_t result;
+
+  __asm volatile ("csrrs %0, 0x800, %1" : \
+          "=r"(result): "r"(mpie_mie) : "memory");
+  return result;
+}
+
+/*********************************************************************
+ * @fn      __disable_irq
+ *
+ * @brief   Disable Global Interrupt
+ *
+ * @return  mpie and mie bit in mstatus.
+ */
+__attribute__((always_inline)) RV_STATIC_INLINE uint32_t __risc_v_disable_irq(void)
+{
+  uint32_t result;
+
+  __asm volatile ("csrrc %0, 0x800, %1" : \
+          "=r"(result): "r"(0x88) : "memory");
+  return result & 0x88;
+}
 
 /*******************************************************************************
  * @fn      PFIC_EnableIRQ
@@ -122,8 +154,7 @@ __attribute__((always_inline)) RV_STATIC_INLINE void PFIC_EnableIRQ(IRQn_Type IR
 __attribute__((always_inline)) RV_STATIC_INLINE void PFIC_DisableIRQ(IRQn_Type IRQn)
 {
     PFIC->IRER[((uint32_t)(IRQn) >> 5)] = (1 << ((uint32_t)(IRQn)&0x1F));
-    __nop();
-    __nop();
+    asm volatile("fence.i");
 }
 
 /*******************************************************************************
@@ -201,8 +232,7 @@ __attribute__((always_inline)) RV_STATIC_INLINE uint32_t PFIC_GetActive(IRQn_Typ
  * @brief   Set Interrupt Priority
  *
  * @param   IRQn        - Interrupt Numbers
- * @param   priority    - bit7:         pre-emption priority
- *                        bit6-bit4:    subpriority
+ * @param   priority    - bit7-bit4:   priority
  */
 __attribute__((always_inline)) RV_STATIC_INLINE void PFIC_SetPriority(IRQn_Type IRQn, uint8_t priority)
 {
@@ -577,6 +607,20 @@ RV_STATIC_INLINE uint32_t SysTick_Config(uint64_t ticks)
 
     SysTick->CMP = ticks - 1; /* set reload register */
     PFIC_EnableIRQ(SysTick_IRQn);
+    SysTick->CTLR = SysTick_CTLR_INIT |
+                    SysTick_CTLR_STRE |
+                    SysTick_CTLR_STCLK |
+                    SysTick_CTLR_STIE |
+                    SysTick_CTLR_STE; /* Enable SysTick IRQ and SysTick Timer */
+    return (0);                       /* Function successful */
+}
+
+RV_STATIC_INLINE uint32_t __SysTick_Config(uint64_t ticks)
+{
+    if((ticks - 1) > SysTick_LOAD_RELOAD_Msk)
+        return (1); /* Reload value impossible */
+
+    SysTick->CMP = ticks - 1; /* set reload register */
     SysTick->CTLR = SysTick_CTLR_INIT |
                     SysTick_CTLR_STRE |
                     SysTick_CTLR_STCLK |

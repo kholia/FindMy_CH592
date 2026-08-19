@@ -57,6 +57,7 @@ void TMR0_PWMInit(PWMX_PolarTypeDef pr, PWM_RepeatTsTypeDef ts)
 {
     R8_TMR0_CTRL_MOD = RB_TMR_ALL_CLEAR;
     R8_TMR0_CTRL_MOD = (pr << 4) | (ts << 6);
+    R8_TMR0_PWM_MOD |= RB_TMR_PWM_MOD;
 }
 
 /*********************************************************************

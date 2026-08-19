@@ -28,7 +28,8 @@ extern "C" {
 // Simple BLE Broadcaster Task Events
 #define SBP_START_DEVICE_EVT         0x0001
 #define SBP_PERIODIC_EVT             0x0002
-#define SBP_ADV_IN_CONNECTION_EVT    0x0004
+#define SBP_ADV_RESTART_EVT          0x0004
+#define SBP_NETWORK_SWITCH_EVT       0x0008
 
 /*********************************************************************
  * MACROS
@@ -41,7 +42,13 @@ extern "C" {
 /*
  * Task Initialization for the BLE Broadcaster Application
  */
-extern void Broadcaster_Init(uint8_t advertData[], size_t advert_len);
+extern void Broadcaster_Prepare(uint8_t mac_addr[6]);
+
+/*
+ * Task initialization. Broadcaster_Prepare must be called before BLE init so
+ * the controller starts with the address belonging to the first key.
+ */
+extern void Broadcaster_Init(void);
 
 /*
  * Task Event Processor for the BLE Broadcaster Application
